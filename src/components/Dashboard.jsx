@@ -1,39 +1,3 @@
-// import ActsSection from "./ActsSection";
-// import Declaration from "./Declaration";
-// import Donation from "./Donation";
-// import GlobalSupporters from "./GlobalSupporters";
-// import HeroSection from "./HeroSection";
-// import InfoSection from "./InfoSection";
-// import LatestNews from "./LatestNews";
-// import NewsLetterToolkit from "./NewsletterAndToolkit";
-// import Signatories from "./Signatories";
-
-// const Dashboard = () => {
-//   return (
-//     <div className="dashboard">
-
-//       <HeroSection />
-//       <InfoSection />
-//       <Donation />
-//       <ActsSection />
-//       <Declaration />
-//       <LatestNews />
-//       <NewsLetterToolkit />
-//       <Signatories />
-//       {/* <GlobalSupporters /> */}
-//       <div className="footer-aware-wrapper">
-//         <GlobalSupporters />
-//       </div>
-//     </div>
-
-//   );
-
-// };
-
-// export default Dashboard
-
-
-
 import React, { Suspense, lazy } from 'react';
 
 const HeroSection = lazy(() => import('./HeroSection'));
