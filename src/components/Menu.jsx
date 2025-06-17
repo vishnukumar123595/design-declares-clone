@@ -1,34 +1,28 @@
+
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { IoHomeOutline } from "react-icons/io5";
 import { LiaExclamationSolid } from "react-icons/lia";
-import { MdOutlineLibraryBooks } from "react-icons/md";
-import { MdOutlineEmail } from "react-icons/md";
+import { MdOutlineLibraryBooks, MdOutlineEmail } from "react-icons/md";
 import { CiGlobe } from "react-icons/ci";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-import GlobalChapter from './GlobalChapter'; // import the popup component
+import GlobalChapter from './GlobalChapter';
 
-const Header = () => {
+const Header = ({ onTypingComplete }) => {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isGlobalChapterOpen, setIsGlobalChapterOpen] = useState(false);
+  const [showTyping, setShowTyping] = useState(isHome); // only for "/"
+
   const menuRef = useRef(null);
 
   const toggleDropdown = () => setIsDropdownOpen(prev => !prev);
 
-  // Blur background when dropdown or popup open
-  useEffect(() => {
-    const appRoot = document.getElementById('main-content'); // Make sure main content has this ID
-    if (appRoot) {
-      if (isDropdownOpen || isGlobalChapterOpen) {
-        appRoot.classList.add('blurred');
-      } else {
-        appRoot.classList.remove('blurred');
-      }
-    }
-  }, [isDropdownOpen, isGlobalChapterOpen]);
-
-  // Close dropdown on outside click
+  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -42,10 +36,21 @@ const Header = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     }
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isDropdownOpen]);
+
+  // Handle typing animation completion
+  useEffect(() => {
+    if (isHome) {
+      const timer = setTimeout(() => {
+        setShowTyping(false);
+        onTypingComplete?.();
+      }, 1600); // match animation duration
+      return () => clearTimeout(timer);
+    } else {
+      onTypingComplete?.();
+    }
+  }, [isHome, onTypingComplete]);
 
   useEffect(() => {
     AOS.init({ duration: 1000 });
@@ -53,75 +58,83 @@ const Header = () => {
 
   return (
     <>
-      {/* Sticky Top Logo */}
-      <header className="d-flex align-items-center p-3 bg-light border-bottom">
-        <div
-          className="logo"
-          style={{ fontSize: '7.5rem', fontWeight: 'bold', fontFamily: 'impact, "Arial Black", "Franklin Gothic Bold", sans-serif' }}
-          data-aos="fade-right"
-          data-aos-anchor-placement="top-bottom"
-          data-aos-once="true"
-          data-aos-offset="120"
-        >
-          D!
-        </div>
-      </header>
+      {/* Large animated D! only on home page during typing */}
+      {isHome && showTyping && (
+        <header className="d-flex align-items-center justify-content-center p-5 bg-light border-bottom">
+          <h1 className="typing">D!</h1>
+        </header>
+      )}
+
+      {/* Small static D! on all non-home routes */}
+      {!isHome && (
+        <header className="d-flex align-items-center p-3 bg-light border-bottom">
+          <div
+            className="logo"
+            style={{
+              fontSize: '4rem',
+              fontWeight: 'bold',
+              fontFamily: 'impact, "Arial Black", "Franklin Gothic Bold", sans-serif',
+            }}
+          >
+            D!
+          </div>
+        </header>
+      )}
 
       {/* Floating Menu */}
-      <div className="floating-menu-box" ref={menuRef}>
-        {/* Menu Header */}
-        <div
-          onClick={toggleDropdown}
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            cursor: 'pointer',
-            fontWeight: '400',
-            fontSize: '1.7rem',
-          }}
-        >
-          <span>Menu</span>
-          <span style={{ fontSize: '1.7rem' }}>{isDropdownOpen ? '−' : '+'}</span>
-        </div>
-
-        {/* Dropdown Items */}
-        {isDropdownOpen && (
-          <div className="dropdown-menu-items mt-3">
-            <button onClick={() => window.open('/', '_blank', 'noopener,noreferrer')}>
-              <span className="icon-text"><IoHomeOutline /> Home</span>
-            </button>
-            <button onClick={() => window.open('/about', '_blank', 'noopener,noreferrer')}>
-              <span className="icon-text"><LiaExclamationSolid /> About</span>
-            </button>
-            <button onClick={() => window.open('/latest', '_blank', 'noopener,noreferrer')}>
-              <span className="icon-text"><MdOutlineLibraryBooks /> Latest</span>
-            </button>
-            <button onClick={() => window.open('/contactform', '_blank', 'noopener,noreferrer')}>
-              <span className="icon-text"><MdOutlineEmail /> Contact</span>
-            </button>
-            <button
-              onClick={() => {
-                setIsGlobalChapterOpen(true);
-                setIsDropdownOpen(false);
-              }}
-            >
-              <span className="icon-text"><CiGlobe /> Choose Global Chapter</span>
-            </button>
+      {!showTyping && (
+        <div className="floating-menu-box" ref={menuRef}>
+          <div
+            onClick={toggleDropdown}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              fontWeight: '400',
+              fontSize: '1.7rem',
+            }}
+          >
+            <span>Menu</span>
+            <span style={{ fontSize: '1.7rem' }}>{isDropdownOpen ? '−' : '+'}</span>
           </div>
-        )}
 
-        <hr />
+          {isDropdownOpen && (
+            <div className="dropdown-menu-items mt-3">
+              <button onClick={() => window.open('/', '_blank', 'noopener,noreferrer')}>
+                <span className="icon-text"><IoHomeOutline /> Home</span>
+              </button>
+              <button onClick={() => window.open('/about', '_blank', 'noopener,noreferrer')}>
+                <span className="icon-text"><LiaExclamationSolid /> About</span>
+              </button>
+              <button onClick={() => window.open('/latest', '_blank', 'noopener,noreferrer')}>
+                <span className="icon-text"><MdOutlineLibraryBooks /> Latest</span>
+              </button>
+              <button onClick={() => window.open('/contactform', '_blank', 'noopener,noreferrer')}>
+                <span className="icon-text"><MdOutlineEmail /> Contact</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsGlobalChapterOpen(true);
+                  setIsDropdownOpen(false);
+                }}
+              >
+                <span className="icon-text"><CiGlobe /> Choose Global Chapter</span>
+              </button>
+            </div>
+          )}
 
-        {/* Declare Now Button */}
-        <button
-          className="btn header-button w-100"
-          onClick={() => window.open('/', '_blank', 'noopener,noreferrer')}
-        >
-          Declare Now
-        </button>
-      </div>
+          <hr />
 
-      {/* GlobalChapter Fullscreen Popup */}
+          <button
+            className="btn header-button w-100"
+            onClick={() => window.open('/', '_blank', 'noopener,noreferrer')}
+          >
+            Declare Now
+          </button>
+        </div>
+      )}
+
+      {/* Global Chapter Modal */}
       {isGlobalChapterOpen && (
         <div className="global-chapter-modal">
           <button
@@ -139,3 +152,4 @@ const Header = () => {
 };
 
 export default Header;
+
