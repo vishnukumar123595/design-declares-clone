@@ -43,14 +43,16 @@ const Spinner = () => (
   </div>
 );
 function App() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const [showContent, setShowContent] = useState(false);
   return (
     <Router>
       <ScrollProgressBar />
-      <Header onTypingComplete={() => setShowContent(true)} />
+      <Header onTypingComplete={() => setShowContent(true)} isDropdownOpen={isDropdownOpen}
+        setIsDropdownOpen={setIsDropdownOpen} />
       {showContent && (
-        <main id="main-content">
+        <main id="main-content" className={isDropdownOpen ? 'blurred' : ''}>
           <Suspense fallback={<Spinner />}>
             <Routes>
               <Route path="/" element={<Dashboard />} />

@@ -10,11 +10,11 @@ import 'aos/dist/aos.css';
 
 import GlobalChapter from './GlobalChapter';
 
-const Header = ({ onTypingComplete }) => {
+const Header = ({ onTypingComplete,isDropdownOpen, setIsDropdownOpen }) => {
   const location = useLocation();
   const isHome = location.pathname === '/';
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isGlobalChapterOpen, setIsGlobalChapterOpen] = useState(false);
   const [showTyping, setShowTyping] = useState(isHome); // only for "/"
 
